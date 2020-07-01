@@ -12,7 +12,21 @@
 # Happy Coding!
 
 service: broadway-tix
+# endpoints:
+#   POST - https://4o319y7qe2.execute-api.us-east-1.amazonaws.com/dev/createReservation
+#   GET - https://4o319y7qe2.execute-api.us-east-1.amazonaws.com/dev/posts
 # app and org for use with dashboard.serverless.com
+#  createReservation: broadway-tix-dev-createReservation
+#  getAllPosts: broadway-tix-dev-getAllPosts
+
+
+  # createPost:
+  #   handler: handler.createReservation
+  #   events:
+  #   - http:
+  #       path: /post
+  #       method: post
+
 app: broadway-tix
 org: jegathings
 
