@@ -24,12 +24,11 @@ module.exports.getAllReservations = (event, context, callback) => {
 
 module.exports.createShow = (event, context, callback) => {
   const reqBody = JSON.parse(event.body);
-  console.log("Show Comedians", reqBody.show_comedians);
   const show = {
     id: uuidv4(),
     email: reqBody.email,
     category : reqBody.category,
-    number_of_tickets : reqBody.number_of_tickets,
+    number_of_tickets : parseInt(reqBody.number_of_tickets),
     show_name: reqBody.show_name,
     show_date: reqBody.show_date,
     show_time: reqBody.show_time,
