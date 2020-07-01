@@ -59,6 +59,12 @@ functions:
     - http:
         path: /post
         method: post
+  createShow:
+    handler: handler.createShow
+    events:
+    - http:
+        path: /createShow
+        method: post
   getAllPosts:
     handler: handler.getAllReservations
     events:
