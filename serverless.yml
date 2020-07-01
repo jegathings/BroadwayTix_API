@@ -19,10 +19,9 @@ org: jegathings
 # You can pin your service to only deploy with a specific Serverless version
 # Check out our docs for more details
 # frameworkVersion: "=X.X.X"
-
 custom:
   settings:
-    TABLE: broadway_comedy_club
+    TABLE: broadway_people
 
 provider:
   name: aws
@@ -51,20 +50,4 @@ functions:
     events:
     - http:
         path: /posts
-        method: get
-
-resources:
-  Resources:
-    PostsTable:
-      Type: AWS::DynamoDB::Table
-      Properties:
-        AttributeDefinitions:
-        - AttributeName: "id"
-          AttributeType: "S"
-        KeySchema:
-        - AttributeName: "id"
-          KeyType: "HASH"
-        ProvisionedThroughput:
-          ReadCapacityUnits: 1
-          WriteCapacityUnits: 1
-        TableName: ${self:custom.settings.TABLE}
+        method: get      
