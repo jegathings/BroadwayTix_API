@@ -5,10 +5,15 @@ const db = new AWS.DynamoDB.DocumentClient({ apiVersion: '2012-08-10' });
 const broadwayTable = "broadway_people";
 
 function response(statusCode, message) {
+  console.log("Status",statusCode);
+  console.log("message", message);
   return {
     statusCode: statusCode,
-    body: JSON.stringify(message)
-  };
+    body: JSON.stringify(message),
+    headers: {
+      'Access-Control-Allow-Origin': '*'
+  },
+};
 }
 
 module.exports.getTheComics = (event, context, callback) => {
@@ -46,12 +51,12 @@ module.exports.createShow = (event, context, callback) => {
   const show = {
     id: uuidv4(),
     email: reqBody.email,
-    category : reqBody.category,
+    category : "comedy",
     number_of_tickets : parseInt(reqBody.number_of_tickets),
     show_name: reqBody.show_name,
     show_date: reqBody.show_date,
     show_time: reqBody.show_time,
-    show_room: reqBody.show_room,
+    show_room: "The Brooklyn Room",
     show_comedians: reqBody.show_comedians
   }
   const output =  db
