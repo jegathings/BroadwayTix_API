@@ -11,6 +11,25 @@ function response(statusCode, message) {
   };
 }
 
+module.exports.getTheComics = (event, context, callback) => {
+  console.log("Start getTheComics");
+  var params = {
+    TableName: broadwayTable,
+    IndexName: "BroadwayRoleIndex",
+    KeyConditionExpression: "broadway_role = :broadway_role",
+    ExpressionAttributeValues: {
+        ":broadway_role":"comedian"
+    }
+  };
+  db.query(params).
+  promise()
+  .then((result => {
+    callback(null, response(200,result.Items));
+  }))
+  .catch((err) => callback(null, response(err.statusCode, err)));  
+  console.log("End getTheComics");
+}
+
 module.exports.getAllReservations = (event, context, callback) => {
   return db.scan({
     TableName: broadwayTable
@@ -99,28 +118,7 @@ module.exports.createReservation = (event, context, callback) => {
       console.log(err);
       response(null, response(err.statusCode, err))
     });
-
+    for(let index=0;index<10;index++)
+      console.log("Finsished request.")
     return output;
 };
-// if (
-//   !reqBody.first_name ||
-//   reqBody.first_name.trim() === '' ||
-//   !reqBody.last_name ||
-//   reqBody.last_name.trim() === '' ||
-//   !reqBody.email ||
-//   reqBody.email.trim() === '' ||
-//   !reqBody.broadway_role ||
-//   reqBody.broadway_role.trim() === '' ||
-//   !reqBody.number_of_tickets ||
-//   reqBody.number_of_tickets.trim() === '',
-//   !reqBody.show_id ||
-//   reqBody.show_id.trim() === ''
-// ) {
-//   return callback(
-//     null,
-//     response(400, {
-//       error: 'Reservation not properly formatted'
-//     })
-//   );
-// }
-
