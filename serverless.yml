@@ -61,12 +61,15 @@ provider:
 
 functions:
   login:
-    handler: lambdas/login.handler
+    handler: handler.login
     events:
-      - http:
-          path: login
-          method: post
-          cors: true
+    - http:
+        path: /login
+        method: post
+        cors:
+          - enabled: true
+          - origin: '*'
+          - headers: 'Content-Type,Authorization,Access-Control-Allow-Origin,Access-Control-Allow-Credentials,Access-Control-Allow-Origin'
 
   createPost:
     handler: handler.createReservation

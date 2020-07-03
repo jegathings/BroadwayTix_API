@@ -3,7 +3,7 @@ const AWS = require('aws-sdk');
 const db = new AWS.DynamoDB({ apiVersion: '2012-08-10' });
 //const db = new AWS.DynamoDB.DocumentClient({ apiVersion: '2012-08-10' });
 
-const JWT_EXPIRATION_TIME = '5m';
+const JWT_EXPIRATION_TIME = '55m';
 const broadwayTable = "broadway_users";
 
 function response(statusCode, message) {
@@ -17,6 +17,7 @@ function response(statusCode, message) {
 }
 module.exports.handler = (event, context, callback) => {
   const reqBody = JSON.parse(event.body);
+  console.log("Event",event);
   console.log("Body", reqBody);  
   const params = {
   TableName: broadwayTable,
@@ -54,27 +55,3 @@ module.exports.handler = (event, context, callback) => {
   callback(null, response("401", err))
   });   
 }  
-
-// for(let index=0;index<=20;index++)
-// console.log("Request", reqBody);
-// var params = {
-// TableName: broadwayTable,
-// IndexName: "EmailIndex",
-// KeyConditionExpression: "email = :email and password = :password",
-// ExpressionAttributeValues: {
-//     ":email":reqBody.email,
-//     ":password":reqBody.password
-// }
-// };
-// db.get(params).
-// promise()
-// .then((user => {
-// console.log("User", user);
-// const token = jwt.sign({ user }, process.env.JWT_SECRET, { expiresIn: JWT_EXPIRATION_TIME });
-// const res = response(200,token);
-// callback(null, res);
-// }))
-// .catch((err) =>{ 
-// console.log(err);
-// callback(null, response("401", err))
-// });   
