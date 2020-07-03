@@ -36,6 +36,7 @@ org: jegathings
 custom:
   settings:
     TABLE: broadway_people
+    LOGIN_TABLE: broadway_users
 
 provider:
   name: aws
@@ -46,6 +47,7 @@ provider:
         - dynamodb:Query
      Resource:
       - "arn:aws:dynamodb:${self:provider.region}:*:table/${self:custom.settings.TABLE}/index/*"
+      - "arn:aws:dynamodb:${self:provider.region}:*:table/${self:custom.settings.LOGIN_TABLE}/index/*"
    - Effect: "Allow"
      Action:
         - dynamodb:DescribeTable
@@ -58,6 +60,14 @@ provider:
       - "arn:aws:dynamodb:${self:provider.region}:*:table/${self:custom.settings.TABLE}"
 
 functions:
+  login:
+    handler: lambdas/login.handler
+    events:
+      - http:
+          path: login
+          method: post
+          cors: true
+
   createPost:
     handler: handler.createReservation
     events:

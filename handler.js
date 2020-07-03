@@ -5,8 +5,6 @@ const db = new AWS.DynamoDB.DocumentClient({ apiVersion: '2012-08-10' });
 const broadwayTable = "broadway_people";
 
 function response(statusCode, message) {
-  console.log("Status",statusCode);
-  console.log("message", message);
   return {
     statusCode: statusCode,
     body: JSON.stringify(message),
