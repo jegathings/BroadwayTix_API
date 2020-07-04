@@ -1,8 +1,11 @@
 const AWS = require('aws-sdk');
 const { v4: uuidv4 } = require('uuid');
-const db = new AWS.DynamoDB.DocumentClient({ apiVersion: '2012-08-10' });
+const jwt = require('jsonwebtoken');
+const dbClient = new AWS.DynamoDB.DocumentClient({ apiVersion: '2012-08-10' });
+const db = new AWS.DynamoDB({ apiVersion: '2012-08-10' });
 
 const broadwayTable = "broadway_people";
+const JWT_EXPIRATION_TIME = '55m';
 
 function response(statusCode, message) {
   console.log("Should be returning cors.");
@@ -19,7 +22,7 @@ module.exports.login = (event, context, callback) => {
   console.log("Event",event);
   console.log("Body", reqBody);  
   const params = {
-  TableName: broadwayTable,
+  TableName: "broadway_users",
   IndexName: "LoginIndex",
   KeyConditionExpression: "email = :email AND password = :password",
   ExpressionAttributeValues: {
@@ -29,7 +32,7 @@ module.exports.login = (event, context, callback) => {
   };
   console.log("Params", params);
 
-  db.query(params).
+  await db.query(params).
   promise()
   .then((result => {
     if(result.Count === 1){
@@ -54,7 +57,6 @@ module.exports.login = (event, context, callback) => {
   callback(null, response("401", err))
   });   
 }  
-
 module.exports.getTheComics = (event, context, callback) => {
   console.log("Start getTheComics");
   var params = {
@@ -62,7 +64,7 @@ module.exports.getTheComics = (event, context, callback) => {
     IndexName: "BroadwayRoleIndex",
     KeyConditionExpression: "broadway_role = :broadway_role",
     ExpressionAttributeValues: {
-        ":broadway_role":"comedian"
+        ":broadway_role":{"S":"comedian"}
     }
   };
   db.query(params).
@@ -74,32 +76,21 @@ module.exports.getTheComics = (event, context, callback) => {
   console.log("End getTheComics");
 }
 
-module.exports.getAllReservations = (event, context, callback) => {
-  return db.scan({
-    TableName: broadwayTable
-  })
-  .promise()
-  .then((res) => {
-    callback(null, response(200, res.Items.sort(sortByDate)));
-  })
-  .catch((err) => callback(null, response(err.statusCode, err)));  
-}
-
 module.exports.createShow = (event, context, callback) => {
   const reqBody = JSON.parse(event.body);
   const show = {
-    id: uuidv4(),
-    email: reqBody.email,
-    category : "comedy",
-    number_of_tickets : parseInt(reqBody.number_of_tickets),
-    show_name: reqBody.show_name,
-    show_date: reqBody.show_date,
-    show_time: reqBody.show_time,
-    show_room: "The Brooklyn Room",
-    show_comedians: reqBody.show_comedians
+    id: {"S": uuidv4()},
+    email: {"S": reqBody.email},
+    category : {"S": "comedy"},
+    number_of_tickets : {"S": reqBody.number_of_tickets},
+    show_name: {"S":reqBody.show_name},
+    show_date: {"S": reqBody.show_date},
+    show_time: {"S": reqBody.show_time},
+    show_room: {"S":"The Brooklyn Room"},
+    show_comedians: {"S":reqBody.show_comedians}
   }
   const output =  db
-  .put({
+  .putItem({
     TableName: broadwayTable,
     Item: show
   })
@@ -122,12 +113,11 @@ module.exports.createReservation = (event, context, callback) => {
     first_name: reqBody.first_name,
     last_name: reqBody.last_name,    
     email: reqBody.email,
-    broadway_role: reqBody.broadway_role,
-    img:reqBody.img,
+    broadway_role: "customer",
     number_of_tickets:reqBody.number_of_tickets    
   };
 
-  const output =  db
+  const output =  dbClient
     .put({
       TableName: broadwayTable,
       Item: reservation
@@ -141,7 +131,7 @@ module.exports.createReservation = (event, context, callback) => {
       response(null, response(err.statusCode, err))
     });
 
-    db
+    dbClient
     .update({
         TableName:broadwayTable,
         Key:{
@@ -162,7 +152,6 @@ module.exports.createReservation = (event, context, callback) => {
       console.log(err);
       response(null, response(err.statusCode, err))
     });
-    for(let index=0;index<10;index++)
-      console.log("Finsished request.")
+
     return output;
 };

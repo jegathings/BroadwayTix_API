@@ -104,13 +104,4 @@ functions:
           - origin: '*'
           - headers: 'Content-Type,Authorization,Access-Control-Allow-Origin,Access-Control-Allow-Credentials,Access-Control-Allow-Origin'
 
-  getAllPosts:
-    handler: handler.getAllReservations
-    events:
-    - http:
-        path: /posts
-        method: get      
-        cors:
-          - enabled: true
-          - origin: '*'
-          - headers: 'Content-Type,Authorization,Access-Control-Allow-Origin,Access-Control-Allow-Credentials,Access-Control-Allow-Origin'
+  

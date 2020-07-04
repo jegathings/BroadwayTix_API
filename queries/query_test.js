@@ -1,37 +1,23 @@
 var AWS = require("aws-sdk");
+const { v4: uuidv4 } = require('uuid');
 
 AWS.config.update({
   region: "us-east-1"
 });
 
-var db = new AWS.DynamoDB();
+var db = new AWS.DynamoDB.DocumentClient({ apiVersion: '2012-08-10' });
 
-var table = "broadway_users";
-
-const params = {
-    TableName: table,
-    IndexName: "LoginIndex",
-    KeyConditionExpression: "email = :email AND password = :password",
+db
+.update({
+    TableName:"broadway_people",
+    Key:{
+        id: "400edb4d-d2d2-4559-9c12-a0dcdcb429eb",
+    },
+    UpdateExpression: "add #test :value",
+    ExpressionAttributeNames: {
+      "#test": "number_of_tickets"
+    },
     ExpressionAttributeValues: {
-        ":email":{"S": "dina@gmail.com"},
-        ":password":{"S":"$2b$10$ykxAUj7Gd2zkwbpSWskAA.tWoKqqCZt92kaoQffDPekAAsolKcXTW"}
-    }
-    };
-    console.log("Params", params);
-    db.query(params).
-    promise()
-    .then((result => {
-        console.log(result.Items);
-        if(result.Count === 1){
-            const [user] = [result.Items[0]];
-            console.log("Destructure",user);
-            console.log("Image",user.img.S);
-            console.log("First name", user.first_name.S);
-            console.log("Last name", user.last_name.S);
-            console.log("Broadway Role", user.broadway_role.S);
-            console.log("Email",user.email.S);
-        }
-    }))
-    .catch((err) =>{ 
-    console.log(err);
-    })
+      ":value": "2" * -1
+    },
+}).promise()
