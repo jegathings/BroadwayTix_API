@@ -8,7 +8,6 @@ const broadwayTable = "broadway_people";
 const JWT_EXPIRATION_TIME = '55m';
 
 function response(statusCode, message) {
-  console.log("Should be returning cors.");
   return {
     statusCode: statusCode,
     body: JSON.stringify(message),
@@ -32,7 +31,7 @@ module.exports.login = (event, context, callback) => {
   };
   console.log("Params", params);
 
-  await db.query(params).
+  db.query(params).
   promise()
   .then((result => {
     if(result.Count === 1){
@@ -74,6 +73,10 @@ module.exports.getTheComics = (event, context, callback) => {
   }))
   .catch((err) => callback(null, response(err.statusCode, err)));  
   console.log("End getTheComics");
+}
+
+module.exports.getTheEvents = (event, context, callback) => {
+  console.log("Events");  
 }
 
 module.exports.createShow = (event, context, callback) => {
@@ -124,6 +127,7 @@ module.exports.createReservation = (event, context, callback) => {
     })
     .promise()
     .then(() => {
+      console.log("Reservation", reservation);
       callback(null, response(201, reservation));
     })
     .catch((err) => {
@@ -131,27 +135,4 @@ module.exports.createReservation = (event, context, callback) => {
       response(null, response(err.statusCode, err))
     });
 
-    dbClient
-    .update({
-        TableName:broadwayTable,
-        Key:{
-            id: reqBody.show_id,
-        },
-        UpdateExpression: "add #test :value",
-        ExpressionAttributeNames: {
-          "#test": "number_of_tickets"
-        },
-        ExpressionAttributeValues: {
-          ":value": reqBody.number_of_tickets * -1
-        },
-    }).promise()
-    .then(() => {
-      callback(null, response(201, reservation));
-    })
-    .catch((err) => {
-      console.log(err);
-      response(null, response(err.statusCode, err))
-    });
-
-    return output;
 };

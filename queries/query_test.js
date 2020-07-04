@@ -11,13 +11,19 @@ db
 .update({
     TableName:"broadway_people",
     Key:{
-        id: "400edb4d-d2d2-4559-9c12-a0dcdcb429eb",
+        id: "cb4ad98b-d7d5-429d-bbb7-87ea7722708b",
     },
     UpdateExpression: "add #test :value",
     ExpressionAttributeNames: {
       "#test": "number_of_tickets"
     },
     ExpressionAttributeValues: {
-      ":value": "2" * -1
+      ":value": "-1"
     },
 }).promise()
+.then(() => {
+})
+.catch((err) => {
+  console.log(err);
+});
+
