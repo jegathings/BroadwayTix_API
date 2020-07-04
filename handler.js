@@ -1,42 +1,96 @@
 const AWS = require('aws-sdk');
 const { v4: uuidv4 } = require('uuid');
-const db = new AWS.DynamoDB.DocumentClient({ apiVersion: '2012-08-10' });
+const jwt = require('jsonwebtoken');
+const dbClient = new AWS.DynamoDB.DocumentClient({ apiVersion: '2012-08-10' });
+const db = new AWS.DynamoDB({ apiVersion: '2012-08-10' });
 
 const broadwayTable = "broadway_people";
+const JWT_EXPIRATION_TIME = '55m';
 
 function response(statusCode, message) {
+  console.log("Should be returning cors.");
   return {
     statusCode: statusCode,
-    body: JSON.stringify(message)
-  };
+    body: JSON.stringify(message),
+    headers: {
+      'Access-Control-Allow-Origin': '*'
+  },
+};
 }
+module.exports.login = (event, context, callback) => {
+  const reqBody = JSON.parse(event.body);
+  console.log("Event",event);
+  console.log("Body", reqBody);  
+  const params = {
+  TableName: "broadway_users",
+  IndexName: "LoginIndex",
+  KeyConditionExpression: "email = :email AND password = :password",
+  ExpressionAttributeValues: {
+      ":email":{"S": reqBody.email},
+      ":password":{"S":reqBody.password}
+  }
+  };
+  console.log("Params", params);
 
-module.exports.getAllReservations = (event, context, callback) => {
-  return db.scan({
-    TableName: broadwayTable
-  })
-  .promise()
-  .then((res) => {
-    callback(null, response(200, res.Items.sort(sortByDate)));
-  })
+  await db.query(params).
+  promise()
+  .then((result => {
+    if(result.Count === 1){
+      const [temp] = [result.Items[0]];
+      const user = {
+        img: temp.img.S,
+        first_name: temp.first_name.S,
+        last_name: temp.last_name.S,
+        broadway_role: temp.broadway_role.S,
+        email: temp.email.S
+      };
+      const token = jwt.sign({ user }, "SECRET", { expiresIn: JWT_EXPIRATION_TIME });
+      const res = response(200,token);
+      callback(null, res);
+    }else{
+      callback(null, response("401", "Invalid email or password."))  
+    }
+  }
+  ))
+  .catch((err) =>{ 
+  console.log(err);
+  callback(null, response("401", err))
+  });   
+}  
+module.exports.getTheComics = (event, context, callback) => {
+  console.log("Start getTheComics");
+  var params = {
+    TableName: broadwayTable,
+    IndexName: "BroadwayRoleIndex",
+    KeyConditionExpression: "broadway_role = :broadway_role",
+    ExpressionAttributeValues: {
+        ":broadway_role":{"S":"comedian"}
+    }
+  };
+  db.query(params).
+  promise()
+  .then((result => {
+    callback(null, response(200,result.Items));
+  }))
   .catch((err) => callback(null, response(err.statusCode, err)));  
+  console.log("End getTheComics");
 }
 
 module.exports.createShow = (event, context, callback) => {
   const reqBody = JSON.parse(event.body);
   const show = {
-    id: uuidv4(),
-    email: reqBody.email,
-    category : reqBody.category,
-    number_of_tickets : parseInt(reqBody.number_of_tickets),
-    show_name: reqBody.show_name,
-    show_date: reqBody.show_date,
-    show_time: reqBody.show_time,
-    show_room: reqBody.show_room,
-    show_comedians: reqBody.show_comedians
+    id: {"S": uuidv4()},
+    email: {"S": reqBody.email},
+    category : {"S": "comedy"},
+    number_of_tickets : {"S": reqBody.number_of_tickets},
+    show_name: {"S":reqBody.show_name},
+    show_date: {"S": reqBody.show_date},
+    show_time: {"S": reqBody.show_time},
+    show_room: {"S":"The Brooklyn Room"},
+    show_comedians: {"S":reqBody.show_comedians}
   }
   const output =  db
-  .put({
+  .putItem({
     TableName: broadwayTable,
     Item: show
   })
@@ -59,12 +113,11 @@ module.exports.createReservation = (event, context, callback) => {
     first_name: reqBody.first_name,
     last_name: reqBody.last_name,    
     email: reqBody.email,
-    broadway_role: reqBody.broadway_role,
-    img:reqBody.img,
+    broadway_role: "customer",
     number_of_tickets:reqBody.number_of_tickets    
   };
 
-  const output =  db
+  const output =  dbClient
     .put({
       TableName: broadwayTable,
       Item: reservation
@@ -78,7 +131,7 @@ module.exports.createReservation = (event, context, callback) => {
       response(null, response(err.statusCode, err))
     });
 
-    db
+    dbClient
     .update({
         TableName:broadwayTable,
         Key:{
@@ -102,25 +155,3 @@ module.exports.createReservation = (event, context, callback) => {
 
     return output;
 };
-// if (
-//   !reqBody.first_name ||
-//   reqBody.first_name.trim() === '' ||
-//   !reqBody.last_name ||
-//   reqBody.last_name.trim() === '' ||
-//   !reqBody.email ||
-//   reqBody.email.trim() === '' ||
-//   !reqBody.broadway_role ||
-//   reqBody.broadway_role.trim() === '' ||
-//   !reqBody.number_of_tickets ||
-//   reqBody.number_of_tickets.trim() === '',
-//   !reqBody.show_id ||
-//   reqBody.show_id.trim() === ''
-// ) {
-//   return callback(
-//     null,
-//     response(400, {
-//       error: 'Reservation not properly formatted'
-//     })
-//   );
-// }
-

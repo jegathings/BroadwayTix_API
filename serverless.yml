@@ -36,11 +36,18 @@ org: jegathings
 custom:
   settings:
     TABLE: broadway_people
+    LOGIN_TABLE: broadway_users
 
 provider:
   name: aws
   runtime: nodejs12.x
   iamRoleStatements:
+   - Effect: "Allow"
+     Action:
+        - dynamodb:Query
+     Resource:
+      - "arn:aws:dynamodb:${self:provider.region}:*:table/${self:custom.settings.TABLE}/index/*"
+      - "arn:aws:dynamodb:${self:provider.region}:*:table/${self:custom.settings.LOGIN_TABLE}/index/*"
    - Effect: "Allow"
      Action:
         - dynamodb:DescribeTable
@@ -53,21 +60,48 @@ provider:
       - "arn:aws:dynamodb:${self:provider.region}:*:table/${self:custom.settings.TABLE}"
 
 functions:
+  login:
+    handler: handler.login
+    events:
+    - http:
+        path: /login
+        method: post
+        cors:
+          - enabled: true
+          - origin: '*'
+          - headers: 'Content-Type,Authorization,Access-Control-Allow-Origin,Access-Control-Allow-Credentials,Access-Control-Allow-Origin'
+
   createPost:
     handler: handler.createReservation
     events:
     - http:
         path: /post
         method: post
+        cors:
+          - enabled: true
+          - origin: '*'
+          - headers: 'Content-Type,Authorization,Access-Control-Allow-Origin,Access-Control-Allow-Credentials,Access-Control-Allow-Origin'
+
+  getComics:
+    handler: handler.getTheComics
+    events:
+    - http:
+        path: /getTheComics
+        method: get
+        cors:
+          - enabled: true
+          - origin: '*'
+          - headers: 'Content-Type,Authorization,Access-Control-Allow-Origin,Access-Control-Allow-Credentials,Access-Control-Allow-Origin'
+
   createShow:
     handler: handler.createShow
     events:
     - http:
         path: /createShow
         method: post
-  getAllPosts:
-    handler: handler.getAllReservations
-    events:
-    - http:
-        path: /posts
-        method: get      
+        cors:
+          - enabled: true
+          - origin: '*'
+          - headers: 'Content-Type,Authorization,Access-Control-Allow-Origin,Access-Control-Allow-Credentials,Access-Control-Allow-Origin'
+
+  

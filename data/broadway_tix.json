@@ -3,7 +3,8 @@
     "first_name": "Dina Marie",
     "last_name": "Martin",
     "email": "dina@gmail.com",
-    "role": "admin"
+    "role": "admin",
+    "password": "$2b$10$ykxAUj7Gd2zkwbpSWskAA.tWoKqqCZt92kaoQffDPekAAsolKcXTW"
   },
   {
     "first_name": "Al",

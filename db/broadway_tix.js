@@ -5,15 +5,16 @@ AWS.config.update({region: "us-east-1"});
 var dynamodb = new AWS.DynamoDB();
 
 var params = {
-    TableName : "broadway_people",
+    TableName : "broadway_tix",
     KeySchema: [       
-        { AttributeName: "id", KeyType: "HASH"},  //Partition Key
+        { AttributeName: "id", KeyType: "HASH"},  
     ],
     AttributeDefinitions: [   
         { AttributeName: "id", AttributeType: "S"},    
         { AttributeName: "email", AttributeType: "S" },
         { AttributeName: "broadway_role", AttributeType: "S"},
-        { AttributeName: "show_date", AttributeType: "S"}
+        { AttributeName: "show_date", AttributeType: "S"},
+        { AttributeName: "password", AttributeType: "S"}
     ],
     ProvisionedThroughput: {       
         ReadCapacityUnits: 1, 
@@ -21,9 +22,10 @@ var params = {
     },
     GlobalSecondaryIndexes: [
         {
-            IndexName: "EmailIndex",
+            IndexName: "Login",
             KeySchema: [
-                { AttributeName: "email", KeyType: "HASH"}
+                { AttributeName: "email", KeyType: "HASH"},
+                { AttributeName: "password", KeyType: "RANGE"}
             ],
             Projection:{
                 "NonKeyAttributes":["first_name", "last_name","email","broadway_role","img"],

@@ -10,6 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "aws-sdk": "^2.708.0",
+    "bcrypt": "^5.0.0",
     "csvtojson": "^2.0.10",
     "express": "^4.17.1",
     "serverless-dynamodb-local": "^0.2.39",

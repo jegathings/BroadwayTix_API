@@ -8,16 +8,17 @@ var documentClient = new AWS.DynamoDB.DocumentClient();
 
 console.log("Importing data into DynamoDB. Please wait.");
 
-const broadway_people = JSON.parse(fs.readFileSync('../data/broadway_people.json', 'utf8'));
-broadway_people.forEach(function(person) {
+const broadway_tix = JSON.parse(fs.readFileSync('../data/broadway_tix.json', 'utf8'));
+broadway_tix.forEach(function(person) {
   var params = {
-    TableName: "broadway_people",
+    TableName: "broadway_tix",
     Item: {
       "id": uuidv4(),
       "first_name":  person.first_name,
       "last_name": person.last_name,
       "email":  person.email,
       "broadway_role": person.role,
+      "password":"",
       "img": ""
     }
   };

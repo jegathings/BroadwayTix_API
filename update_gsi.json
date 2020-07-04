@@ -1,0 +1,24 @@
+[
+  {
+    "Create": {
+      "IndexName": "LoginIndex",
+      "KeySchema": [
+            { "AttributeName": "email", "KeyType": "HASH"},
+            { "AttributeName": "password", "KeyType": "HASH"}
+        ],
+      "Projection": {
+        "NonKeyAttributes": ["first_name","last_name","email","password"],
+        "ProjectionType": "INCLUDE"
+      },
+      "ProvisionedThroughput": {
+        "ReadCapacityUnits": 1,
+        "WriteCapacityUnits": 1
+      }
+    }
+  }
+]
+
+[  {    "Create": {      "IndexName": "LoginIndex",      "KeySchema": [            { "AttributeName": "email", "KeyType": "HASH"},            { "AttributeName": "password", "KeyType": "HASH"}        ],      "Projection": {        "NonKeyAttributes": ["first_name","last_name","email","password"],        "ProjectionType": "INCLUDE"      },      "ProvisionedThroughput": {        "ReadCapacityUnits": 1,        "WriteCapacityUnits": 1      }    }  }]
+
+
+
