@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken');
 const dbClient = new AWS.DynamoDB.DocumentClient({ apiVersion: '2012-08-10' });
 const db = new AWS.DynamoDB({ apiVersion: '2012-08-10' });
 
-const BROADWAY_TIX = "broadway_people";
+const BROADWAY_TIX = "broadway_events";
 const BROADWAY_USERS = "broadway_users";
 const JWT_EXPIRATION_TIME = '55m';
 
@@ -91,7 +91,7 @@ module.exports.createShow = (event, context, callback) => {
     id: {"S": uuidv4()},
     email: {"S": reqBody.email},
     category : {"S": "comedy"},
-    number_of_tickets : {"S": reqBody.number_of_tickets},
+    number_of_tickets : {"N": reqBody.number_of_tickets},
     show_name: {"S":reqBody.show_name},
     show_date: {"S": reqBody.show_date},
     show_time: {"S": reqBody.show_time},

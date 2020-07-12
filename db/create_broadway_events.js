@@ -4,8 +4,8 @@ AWS.config.update({region: "us-east-1"});
 
 var dynamodb = new AWS.DynamoDB();
 
-var params = {
-    TableName : "broadway_tix",
+var create_table_params = {
+    TableName : "broadway_events",
     KeySchema: [       
         { AttributeName: "id", KeyType: "HASH"},  
     ],
@@ -60,7 +60,8 @@ var params = {
         }]
 };
 
-dynamodb.createTable(params, function(err, data) {
+
+dynamodb.createTable(create_table_params, function(err, data) {
     if (err) {
         console.error("Unable to create table. Error JSON:", JSON.stringify(err, null, 2));
     } else {

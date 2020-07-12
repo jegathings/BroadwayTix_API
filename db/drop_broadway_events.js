@@ -5,7 +5,7 @@ AWS.config.update({region: "us-east-1"});
 var dynamodb = new AWS.DynamoDB();
 
 var params = {
-    TableName : "broadway_people"
+    TableName : "broadway_events"
 };
 
 dynamodb.deleteTable(params, function(err, data) {

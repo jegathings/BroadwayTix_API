@@ -35,7 +35,7 @@ org: jegathings
 # frameworkVersion: "=X.X.X"
 custom:
   settings:
-    TABLE: broadway_people
+    TABLE: broadway_events
     LOGIN_TABLE: broadway_users
 
 provider:
