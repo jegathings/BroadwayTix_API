@@ -45,6 +45,7 @@ provider:
    - Effect: "Allow"
      Action:
         - dynamodb:Query
+        - dynamodb:PutItem
      Resource:
       - "arn:aws:dynamodb:${self:provider.region}:*:table/${self:custom.settings.TABLE}/index/*"
       - "arn:aws:dynamodb:${self:provider.region}:*:table/${self:custom.settings.LOGIN_TABLE}/index/*"
@@ -58,8 +59,20 @@ provider:
         - dynamodb:DeleteItem
      Resource:
       - "arn:aws:dynamodb:${self:provider.region}:*:table/${self:custom.settings.TABLE}"
+      - "arn:aws:dynamodb:${self:provider.region}:*:table/${self:custom.settings.LOGIN_TABLE}"
 
 functions:
+  createUser:
+    handler: handler.createUser
+    events:
+    - http:
+        path: /createUser
+        method: post
+        cors:
+          - enabled: true
+          - origin: '*'
+          - headers: 'Content-Type,Authorization,Access-Control-Allow-Origin,Access-Control-Allow-Credentials,Access-Control-Allow-Origin'
+  
   login:
     handler: handler.login
     events:

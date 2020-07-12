@@ -4,7 +4,8 @@ const jwt = require('jsonwebtoken');
 const dbClient = new AWS.DynamoDB.DocumentClient({ apiVersion: '2012-08-10' });
 const db = new AWS.DynamoDB({ apiVersion: '2012-08-10' });
 
-const broadwayTable = "broadway_people";
+const BROADWAY_TIX = "broadway_people";
+const BROADWAY_USERS = "broadway_users";
 const JWT_EXPIRATION_TIME = '55m';
 
 function response(statusCode, message) {
@@ -59,7 +60,7 @@ module.exports.login = (event, context, callback) => {
 module.exports.getTheComics = (event, context, callback) => {
   console.log("Start getTheComics");
   var params = {
-    TableName: broadwayTable,
+    TableName: BROADWAY_TIX,
     IndexName: "BroadwayRoleIndex",
     KeyConditionExpression: "broadway_role = :broadway_role",
     ExpressionAttributeValues: {
@@ -81,6 +82,11 @@ module.exports.getTheEvents = (event, context, callback) => {
 
 module.exports.createShow = (event, context, callback) => {
   const reqBody = JSON.parse(event.body);
+  console.log("Email",reqBody.show_name);
+  console.log("Number of tickets", reqBody.number_of_tickets);
+  console.log("Show Name", reqBody.show_name);
+  console.log("Show Date", reqBody.show_date);
+  console.log("Show Time", reqBody.show_time);
   const show = {
     id: {"S": uuidv4()},
     email: {"S": reqBody.email},
@@ -90,11 +96,12 @@ module.exports.createShow = (event, context, callback) => {
     show_date: {"S": reqBody.show_date},
     show_time: {"S": reqBody.show_time},
     show_room: {"S":"The Brooklyn Room"},
-    show_comedians: {"S":reqBody.show_comedians}
+    show_comedians: {"S":"Chris Rock"}
   }
+  console.log("The Show", show);
   const output =  db
   .putItem({
-    TableName: broadwayTable,
+    TableName: BROADWAY_TIX,
     Item: show
   })
   .promise()
@@ -122,7 +129,7 @@ module.exports.createReservation = (event, context, callback) => {
 
   const output =  dbClient
     .put({
-      TableName: broadwayTable,
+      TableName: BROADWAY_TIX,
       Item: reservation
     })
     .promise()
@@ -135,4 +142,31 @@ module.exports.createReservation = (event, context, callback) => {
       response(null, response(err.statusCode, err))
     });
 
+};
+
+module.exports.createUser = (event, context, callback) => {
+  const reqBody = JSON.parse(event.body);
+
+  const user = {
+    id: uuidv4(),
+    first_name: reqBody.first_name,
+    last_name: reqBody.last_name,    
+    email: reqBody.email,
+    password: reqBody.password,
+    broadway_role: "admin",
+  };
+  dbClient
+  .put({
+    TableName: BROADWAY_USERS,
+    Item: user
+  })
+  .promise()
+  .then(() => {
+    console.log("User", user);
+    callback(null, response(201, user));
+  })
+  .catch((err) => {
+    console.log(err);
+    response(null, response(err.statusCode, err))
+  });
 };
